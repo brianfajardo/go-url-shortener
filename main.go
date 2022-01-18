@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/brianfajardo/url-shortener/handler"
+	"github.com/brianfajardo/url-shortener/urlshort"
 )
 
 func main() {
@@ -15,10 +15,22 @@ func main() {
 		"/dog": "https://en.wikipedia.org/wiki/Dog",
 	}
 
-	mapHandler := handler.MapHandler(pathsToUrl, mux)
+	mapHandler := urlshort.MapHandler(pathsToUrl, mux)
+
+	yaml := `
+- path: /bird
+  url: https://en.wikipedia.org/wiki/bird
+- path: /whale
+  url: https://en.wikipedia.org/wiki/whale
+`
+
+	yamlHandler, err := urlshort.YamlHandler([]byte(yaml), mapHandler)
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println("Starting server on :8080")
-	http.ListenAndServe(":8080", mapHandler)
+	http.ListenAndServe(":8080", yamlHandler)
 }
 
 func defaultMux() *http.ServeMux {
